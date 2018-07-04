@@ -11,10 +11,13 @@ import android.view.View;
 
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.GeoObject;
+import com.yandex.mapkit.GeoObjectCollection;
 import com.yandex.mapkit.MapKitFactory;
+import com.yandex.mapkit.geometry.Geo;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.layers.GeoObjectTapEvent;
 import com.yandex.mapkit.map.CameraPosition;
+import com.yandex.mapkit.map.GeoObjectSelectionMetadata;
 import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.runtime.image.ImageProvider;
@@ -44,7 +47,8 @@ public class YandexMapActivity extends AppCompatActivity {
                 new CameraPosition(new Point(55.964375, 38.465829), 11.0f, 0.0f, 0.0f),
                 new Animation(Animation.Type.SMOOTH,0),
                 null);
-        mapView.getMap().getMapObjects().addPlacemark(new Point(55.964375, 38.465829), ImageProvider.fromBitmap(bitmap), new IconStyle());
+        mapView.getMap().getMapObjects().addPlacemark(new Point(55.964375, 38.465829),
+                ImageProvider.fromBitmap(bitmap), new IconStyle());
         mapView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
