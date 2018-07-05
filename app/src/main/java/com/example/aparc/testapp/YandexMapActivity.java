@@ -10,7 +10,9 @@ import android.widget.Toast;
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.CameraPosition;
+import com.yandex.mapkit.map.CameraUpdateSource;
 import com.yandex.mapkit.map.InputListener;
 import com.yandex.mapkit.map.Map;
 import com.yandex.mapkit.map.PlacemarkMapObject;
@@ -29,7 +31,7 @@ import com.yandex.runtime.image.ImageProvider;
 
 import java.util.List;
 
-public class YandexMapActivity extends AppCompatActivity implements PlacemarkListener {
+public class YandexMapActivity extends AppCompatActivity implements CameraListener {
 
     private MapView mapView;
     private TrafficLayer trafficLayer;
@@ -43,7 +45,7 @@ public class YandexMapActivity extends AppCompatActivity implements PlacemarkLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        MapKitFactory.setApiKey("api-key");
+        MapKitFactory.setApiKey("api");
         MapKitFactory.initialize(this);
         setContentView(R.layout.activity_yandex_map);
 
@@ -80,11 +82,27 @@ public class YandexMapActivity extends AppCompatActivity implements PlacemarkLis
             @Override
             public boolean onTap(SearchResultItem searchResultItem) {
                 Toast.makeText(getApplicationContext(), searchResultItem.getGeoObject().getDescriptionText(), Toast.LENGTH_SHORT).show();
-                return false;
+                return true;
             }
         });
 
         searchLayer.submitQuery("пулково", new SearchOptions());
+
+        mapView.getMap().addInputListener(new InputListener() {
+            @Override
+            public void onMapTap(Map map, Point point) {
+                PlacemarkMapObject placemarkMapObject = map.getMapObjects().
+                        addPlacemark(point, ImageProvider.fromResource(getApplicationContext(), R.drawable.selected));
+            }
+
+            @Override
+            public void onMapLongTap(Map map, Point point) {
+                map.getMapObjects().clear();
+                map.getMapObjects().addCollection();
+            }
+        });
+
+        trafficLayer.setRoadEventVisible(EventType.ACCIDENT, true);
     }
 
     @Override
@@ -99,30 +117,12 @@ public class YandexMapActivity extends AppCompatActivity implements PlacemarkLis
         super.onStart();
         mapView.onStart();
         MapKitFactory.getInstance().onStart();
-
-        mapView.getMap().addInputListener(new InputListener() {
-            @Override
-            public void onMapTap(Map map, Point point) {
-                PlacemarkMapObject placemarkMapObject = map.getMapObjects().
-                        addPlacemark(point, ImageProvider.fromResource(getApplicationContext(), R.drawable.selected));
-            }
-
-            @Override
-            public void onMapLongTap(Map map, Point point) {
-                map.getMapObjects().addCollection();
-            }
-        });
-
-        trafficLayer.setRoadEventVisible(EventType.ACCIDENT, true);
     }
 
     @Override
-    public void onPointerCaptureChanged(boolean hasCapture) {
-
-    }
-
-    @Override
-    public boolean onTap(SearchResultItem searchResultItem) {
-        return false;
+    public void onCameraPositionChanged(Map map, CameraPosition cameraPosition, CameraUpdateSource cameraUpdateSource, boolean b) {
+        if (b) {
+            searchLayer.resubmit();
+        }
     }
 }
