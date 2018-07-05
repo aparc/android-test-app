@@ -43,7 +43,7 @@ public class YandexMapActivity extends AppCompatActivity implements PlacemarkLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        MapKitFactory.setApiKey("04206689-8334-4988-b451-10a535c9e95f");
+        MapKitFactory.setApiKey("api-key");
         MapKitFactory.initialize(this);
         setContentView(R.layout.activity_yandex_map);
 
@@ -56,16 +56,18 @@ public class YandexMapActivity extends AppCompatActivity implements PlacemarkLis
         trafficLayer = mapView.getMap().getTrafficLayer();
         searchManager = MapKitFactory.getInstance().createSearchManager(SearchManagerType.ONLINE);
         searchLayer = mapView.getMap().getSearchLayer();
-        searchLayer.setSearchManager(searchManager);
         searchLayer.addSearchResultListener(new SearchResultListener() {
             @Override
             public void onSearchStart() {
-
             }
 
             @Override
             public void onSearchSuccess() {
                 System.out.println("searchSuccess");
+                List<SearchResultItem> visibleResults = searchLayer.getVisibleResults();
+                for (SearchResultItem resultItem : visibleResults) {
+                    System.out.println(resultItem.getGeoObject().getDescriptionText());
+                }
             }
 
             @Override
@@ -73,20 +75,16 @@ public class YandexMapActivity extends AppCompatActivity implements PlacemarkLis
 
             }
         });
-//        searchLayer.addPlacemarkListener(new PlacemarkListener() {
-//            @Override
-//            public boolean onTap(SearchResultItem searchResultItem) {
-//                System.out.println(searchResultItem.hasDetails());
-//                return false;
-//            }
-//        });
-//        searchLayer.submitQuery("Кафе", new SearchOptions());
-        System.out.println(searchLayer.isValid());
-        List<SearchResultItem> visibleResults = searchLayer.getVisibleResults();
-        for (SearchResultItem resultItem: visibleResults) {
-            System.out.println(resultItem.getId());
-        }
 
+        searchLayer.addPlacemarkListener(new PlacemarkListener() {
+            @Override
+            public boolean onTap(SearchResultItem searchResultItem) {
+                Toast.makeText(getApplicationContext(), searchResultItem.getGeoObject().getDescriptionText(), Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+
+        searchLayer.submitQuery("пулково", new SearchOptions());
     }
 
     @Override
@@ -105,24 +103,15 @@ public class YandexMapActivity extends AppCompatActivity implements PlacemarkLis
         mapView.getMap().addInputListener(new InputListener() {
             @Override
             public void onMapTap(Map map, Point point) {
-                PlacemarkMapObject placemarkMapObject = map.getMapObjects().addPlacemark(point, ImageProvider.fromResource(getApplicationContext(), R.drawable.selected));
+                PlacemarkMapObject placemarkMapObject = map.getMapObjects().
+                        addPlacemark(point, ImageProvider.fromResource(getApplicationContext(), R.drawable.selected));
             }
 
             @Override
             public void onMapLongTap(Map map, Point point) {
-                map.getMapObjects().clear();
+                map.getMapObjects().addCollection();
             }
         });
-
-//        mapView.getMap().addTapListener(new GeoObjectTapListener() {
-//            @Override
-//            public boolean onObjectTap(GeoObjectTapEvent geoObjectTapEvent) {
-//                System.out.println(geoObjectTapEvent.getGeoObject().getMetadataContainer().toString());
-//                System.out.println(geoObjectTapEvent.getGeoObject().getName());
-//                System.out.println(geoObjectTapEvent.getGeoObject().getDescriptionText());
-//                return true;
-//            }
-//        });
 
         trafficLayer.setRoadEventVisible(EventType.ACCIDENT, true);
     }
