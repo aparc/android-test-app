@@ -1,33 +1,41 @@
 package com.example.aparc.testapp;
 
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import android.widget.Toast;
+
 
 import com.yandex.mapkit.Animation;
-import com.yandex.mapkit.GeoObject;
-import com.yandex.mapkit.GeoObjectCollection;
 import com.yandex.mapkit.MapKitFactory;
-import com.yandex.mapkit.geometry.Geo;
 import com.yandex.mapkit.geometry.Point;
-import com.yandex.mapkit.layers.GeoObjectTapEvent;
 import com.yandex.mapkit.map.CameraPosition;
-import com.yandex.mapkit.map.GeoObjectSelectionMetadata;
-import com.yandex.mapkit.map.IconStyle;
+import com.yandex.mapkit.map.InputListener;
+import com.yandex.mapkit.map.Map;
+import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.mapview.MapView;
+import com.yandex.mapkit.road_events.EventType;
+import com.yandex.mapkit.search.SearchManager;
+import com.yandex.mapkit.search.SearchManagerType;
+import com.yandex.mapkit.search.SearchOptions;
+import com.yandex.mapkit.search_layer.PlacemarkListener;
+import com.yandex.mapkit.search_layer.SearchLayer;
+import com.yandex.mapkit.search_layer.SearchResultItem;
+import com.yandex.mapkit.search_layer.SearchResultListener;
+import com.yandex.mapkit.traffic.TrafficLayer;
+import com.yandex.runtime.Error;
 import com.yandex.runtime.image.ImageProvider;
 
-public class YandexMapActivity extends AppCompatActivity {
+import java.util.List;
+
+public class YandexMapActivity extends AppCompatActivity implements PlacemarkListener {
 
     private MapView mapView;
-    private Bitmap bitmap;
+    private TrafficLayer trafficLayer;
+    private SearchLayer searchLayer;
+    private SearchManager searchManager;
     private static final String TAG = YandexMapActivity.class.getSimpleName();
-
 
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -35,26 +43,50 @@ public class YandexMapActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        MapKitFactory.setApiKey("api-key");
+        MapKitFactory.setApiKey("04206689-8334-4988-b451-10a535c9e95f");
         MapKitFactory.initialize(this);
         setContentView(R.layout.activity_yandex_map);
 
-        bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-        bitmap.eraseColor(Color.GREEN);
-
-        mapView = (MapView)findViewById(R.id.mapview);
+        mapView = (MapView) findViewById(R.id.mapview);
         mapView.getMap().move(
-                new CameraPosition(new Point(55.964375, 38.465829), 11.0f, 0.0f, 0.0f),
-                new Animation(Animation.Type.SMOOTH,0),
+                new CameraPosition(new Point(59.949937, 30.314994), 14.0f, 0.0f, 0.0f),
+                new Animation(Animation.Type.SMOOTH, 0),
                 null);
-        mapView.getMap().getMapObjects().addPlacemark(new Point(55.964375, 38.465829),
-                ImageProvider.fromBitmap(bitmap), new IconStyle());
-        mapView.setOnClickListener(new View.OnClickListener() {
+
+        trafficLayer = mapView.getMap().getTrafficLayer();
+        searchManager = MapKitFactory.getInstance().createSearchManager(SearchManagerType.ONLINE);
+        searchLayer = mapView.getMap().getSearchLayer();
+        searchLayer.setSearchManager(searchManager);
+        searchLayer.addSearchResultListener(new SearchResultListener() {
             @Override
-            public void onClick(View view) {
-                Log.d(TAG, "CLICK");
+            public void onSearchStart() {
+
+            }
+
+            @Override
+            public void onSearchSuccess() {
+                System.out.println("searchSuccess");
+            }
+
+            @Override
+            public void onSearchError(Error error) {
+
             }
         });
+//        searchLayer.addPlacemarkListener(new PlacemarkListener() {
+//            @Override
+//            public boolean onTap(SearchResultItem searchResultItem) {
+//                System.out.println(searchResultItem.hasDetails());
+//                return false;
+//            }
+//        });
+//        searchLayer.submitQuery("Кафе", new SearchOptions());
+        System.out.println(searchLayer.isValid());
+        List<SearchResultItem> visibleResults = searchLayer.getVisibleResults();
+        for (SearchResultItem resultItem: visibleResults) {
+            System.out.println(resultItem.getId());
+        }
+
     }
 
     @Override
@@ -69,10 +101,39 @@ public class YandexMapActivity extends AppCompatActivity {
         super.onStart();
         mapView.onStart();
         MapKitFactory.getInstance().onStart();
+
+        mapView.getMap().addInputListener(new InputListener() {
+            @Override
+            public void onMapTap(Map map, Point point) {
+                PlacemarkMapObject placemarkMapObject = map.getMapObjects().addPlacemark(point, ImageProvider.fromResource(getApplicationContext(), R.drawable.selected));
+            }
+
+            @Override
+            public void onMapLongTap(Map map, Point point) {
+                map.getMapObjects().clear();
+            }
+        });
+
+//        mapView.getMap().addTapListener(new GeoObjectTapListener() {
+//            @Override
+//            public boolean onObjectTap(GeoObjectTapEvent geoObjectTapEvent) {
+//                System.out.println(geoObjectTapEvent.getGeoObject().getMetadataContainer().toString());
+//                System.out.println(geoObjectTapEvent.getGeoObject().getName());
+//                System.out.println(geoObjectTapEvent.getGeoObject().getDescriptionText());
+//                return true;
+//            }
+//        });
+
+        trafficLayer.setRoadEventVisible(EventType.ACCIDENT, true);
     }
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
 
+    }
+
+    @Override
+    public boolean onTap(SearchResultItem searchResultItem) {
+        return false;
     }
 }
