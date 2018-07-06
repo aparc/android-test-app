@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TestApp</string>
+    <string name="from_field">From</string>
+    <string name="to_field">To</string>
 </resources>

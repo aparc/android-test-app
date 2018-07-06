@@ -8,18 +8,22 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private final String TAG = MainActivity.class.getSimpleName();
+
+    @BindView(R.id.button)
+    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
-        Button button = (Button) findViewById(R.id.button);
+        ButterKnife.bind(this);
         button.setOnClickListener(this);
-
     }
 
     @Override

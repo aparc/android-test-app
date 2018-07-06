@@ -8,10 +8,77 @@
     tools:context=".YandexMapActivity">
 
 
-    <com.yandex.mapkit.mapview.MapView
-        android:id="@+id/mapview"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="26dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@null"
+                    android:src="@drawable/ic_chevron_left_black_24dp" />
+
+                <LinearLayout
+                    android:layout_width="298dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:orientation="vertical">
+
+                    <EditText
+                        android:id="@+id/edit_text_from"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:background="@color/colorEditText"
+                        android:hint="@string/from_field"
+                        android:textColorHint="#e212" />
+
+                    <EditText
+                        android:id="@+id/edit_text_to"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@color/colorEditText"
+                        android:hint="@string/to_field"
+                        android:textColorHint="#e212" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </android.support.v7.widget.Toolbar>
+
+        <com.yandex.mapkit.mapview.MapView
+            android:id="@+id/mapview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_route"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="100dp"
+        android:src="@drawable/ic_transfer_within_a_station_black_24dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -19,8 +86,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginVertical="16dp"
-        android:src="@mipmap/traffic_jam" />
+        android:layout_marginVertical="25dp"
+        android:src="@drawable/ic_traffic_black_24dp" />
 
 
     <!--<android.support.design.widget.AppBarLayout-->

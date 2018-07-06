@@ -5,6 +5,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
 
 
 import com.yandex.mapkit.Animation;
@@ -31,10 +32,18 @@ import com.yandex.runtime.image.ImageProvider;
 
 import java.util.List;
 
-public class YandexMapActivity extends AppCompatActivity implements CameraListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-    private MapView mapView;
-    private TrafficLayer trafficLayer;
+public class YandexMapActivity extends AppCompatActivity implements CameraListener, SearchResultListener,
+        PlacemarkListener {
+
+    @BindView(R.id.mapview)
+    MapView mapView;
+
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+
     private SearchLayer searchLayer;
     private SearchManager searchManager;
     private static final String TAG = YandexMapActivity.class.getSimpleName();
@@ -48,45 +57,22 @@ public class YandexMapActivity extends AppCompatActivity implements CameraListen
         MapKitFactory.setApiKey("api");
         MapKitFactory.initialize(this);
         setContentView(R.layout.activity_yandex_map);
+        ButterKnife.bind(this);
 
-        mapView = (MapView) findViewById(R.id.mapview);
+//        getSupportActionBar().hide();
+        setSupportActionBar(toolbar);
         mapView.getMap().move(
                 new CameraPosition(new Point(59.949937, 30.314994), 14.0f, 0.0f, 0.0f),
                 new Animation(Animation.Type.SMOOTH, 0),
                 null);
 
-        trafficLayer = mapView.getMap().getTrafficLayer();
+        TrafficLayer trafficLayer = mapView.getMap().getTrafficLayer();
         searchManager = MapKitFactory.getInstance().createSearchManager(SearchManagerType.ONLINE);
         searchLayer = mapView.getMap().getSearchLayer();
-        searchLayer.addSearchResultListener(new SearchResultListener() {
-            @Override
-            public void onSearchStart() {
-            }
-
-            @Override
-            public void onSearchSuccess() {
-                System.out.println("searchSuccess");
-                List<SearchResultItem> visibleResults = searchLayer.getVisibleResults();
-                for (SearchResultItem resultItem : visibleResults) {
-                    System.out.println(resultItem.getGeoObject().getDescriptionText());
-                }
-            }
-
-            @Override
-            public void onSearchError(Error error) {
-
-            }
-        });
-
-        searchLayer.addPlacemarkListener(new PlacemarkListener() {
-            @Override
-            public boolean onTap(SearchResultItem searchResultItem) {
-                Toast.makeText(getApplicationContext(), searchResultItem.getGeoObject().getDescriptionText(), Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
-
         searchLayer.submitQuery("пулково", new SearchOptions());
+        searchLayer.addSearchResultListener(this);
+
+        searchLayer.addPlacemarkListener(this);
 
         mapView.getMap().addInputListener(new InputListener() {
             @Override
@@ -124,5 +110,30 @@ public class YandexMapActivity extends AppCompatActivity implements CameraListen
         if (b) {
             searchLayer.resubmit();
         }
+    }
+
+    @Override
+    public void onSearchStart() {
+
+    }
+
+    @Override
+    public void onSearchSuccess() {
+        System.out.println("searchSuccess");
+        List<SearchResultItem> visibleResults = searchLayer.getVisibleResults();
+        for (SearchResultItem resultItem : visibleResults) {
+            System.out.println(resultItem.getGeoObject().getDescriptionText());
+        }
+    }
+
+    @Override
+    public void onSearchError(Error error) {
+
+    }
+
+    @Override
+    public boolean onTap(SearchResultItem searchResultItem) {
+        Toast.makeText(getApplicationContext(), searchResultItem.getGeoObject().getDescriptionText(), Toast.LENGTH_SHORT).show();
+        return true;
     }
 }
